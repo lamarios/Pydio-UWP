@@ -1,0 +1,144 @@
+﻿<Page
+    x:Class="Pydio.Settings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Pydio"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+   xmlns:models="using:Pydio.Models"
+    mc:Ignorable="d"
+    NavigationCacheMode="Enabled"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+      
+    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveStates" CurrentStateChanged="AdaptiveStates_CurrentStateChanged">
+                <VisualState x:Name="DefaultState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters >
+                        <Setter Target="MasterColumn.Width" Value="*" />
+                        <Setter Target="DetailColumn.Width" Value="0" />
+                        <Setter Target="MasterListView.SelectionMode" Value="None" />
+                    </VisualState.Setters>
+
+    
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="MasterColumn" Width="Auto" />
+                <ColumnDefinition x:Name="DetailColumn" Width="*" />
+            </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ListView x:Name="MasterListView"
+            Grid.Row="0"
+            ItemContainerTransitions="{x:Null}"
+            IsItemClickEnabled="True"
+            ItemClick="MasterListView_ItemClick">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="6" HorizontalAlignment="Stretch">
+                            <SymbolIcon Symbol="Globe" Margin="0,0,12,0"/>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding Url}" FontWeight="Light"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Content="add" Name="AddServer" Click="AddServer_Click" />
+
+        </Grid>
+
+        <Grid  Name="Form"
+            Grid.Column="1"
+            Grid.RowSpan="2"
+            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState x:Name="wideState">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="641" />
+                        </VisualState.StateTriggers>
+                    </VisualState>
+                    <VisualState x:Name="narrowState">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="serverAddress.HorizontalAlignment" Value="Stretch" />
+                            <Setter Target="serverAddress.Width" Value="auto" />
+
+                            <Setter Target="userName.HorizontalAlignment" Value="Stretch" />
+                            <Setter Target="userName.Width" Value="auto" />
+
+                            <Setter Target="password.HorizontalAlignment" Value="Stretch" />
+                            <Setter Target="password.Width" Value="auto" />
+
+                            <Setter Target="label.HorizontalAlignment" Value="Stretch" />
+                            <Setter Target="label.Width" Value="auto" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" x:Name="title" Margin="0" TextWrapping="Wrap" Text="Add Server" FontSize="40">
+                <TextBlock.Foreground>
+                    <SolidColorBrush Color="{ThemeResource SystemAccentColor}" />
+                </TextBlock.Foreground>
+            </TextBlock>
+            <StackPanel Grid.Row="1" x:Name="inputs" Orientation="Vertical" Margin="0">
+                <StackPanel x:Name="serverAddressPanel" Orientation="Vertical" Margin="0,0,0,0">
+                    <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Text="Server address"/>
+                    <TextBox x:Name="serverAddress" Margin="0,10,0,0" TextWrapping="Wrap"  VerticalAlignment="Center" KeyUp="setLabel" Width="300" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <StackPanel x:Name="userNamePanel" Orientation="Vertical" Margin="0,0,0,0">
+                    <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Text="User name"/>
+                    <TextBox x:Name="userName" Margin="0,10,0,0" TextWrapping="Wrap"  VerticalAlignment="Center" Width="300" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <StackPanel x:Name="passwordPanel" Orientation="Vertical" Margin="0,0,0,0">
+                    <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Text="Password"/>
+                    <PasswordBox x:Name="password" Margin="0,10,0,0"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="300"/>
+                </StackPanel>
+                <StackPanel x:Name="labelPanel" Orientation="Vertical" Margin="0,20,0,0">
+                    <TextBlock x:Name="textBlock4" TextWrapping="Wrap" Text="Server name" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBox x:Name="label" TextWrapping="Wrap" Margin="0,10,0,0" VerticalAlignment="Center" Width="300" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Left">
+                    <Button x:Name="save" Content="Save" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="saveServer"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+
+    </Grid>
+</Page>
