@@ -30,11 +30,10 @@
                         <Setter Target="MasterListView.SelectionMode" Value="None" />
                     </VisualState.Setters>
 
-    
+
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
         
         <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -42,7 +41,7 @@
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="MasterColumn" Width="Auto" />
+                <ColumnDefinition x:Name="MasterColumn" Width="300" />
                 <ColumnDefinition x:Name="DetailColumn" Width="*" />
             </Grid.ColumnDefinitions>
 
