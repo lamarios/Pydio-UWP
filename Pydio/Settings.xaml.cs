@@ -22,22 +22,59 @@ namespace Pydio
         private bool isNarrow, isEditting = false;
         private ObservableCollection<Models.Server> pydioServers = new ObservableCollection<Models.Server>();
         private Models.Server _lastSelectedItem;
-
+        SystemNavigationManager systemNavigationManager = SystemNavigationManager.GetForCurrentView();
 
         public Settings()
         {
+            System.Diagnostics.Debug.WriteLine("Loading Settings");
+
             TransitionCollection collection = new TransitionCollection();
             NavigationThemeTransition theme = new NavigationThemeTransition();
 
             var info = new ContinuumNavigationTransitionInfo();
 
+
+
             theme.DefaultNavigationTransitionInfo = info;
             collection.Add(theme);
             this.Transitions = collection;
             this.InitializeComponent();
+
+
         }
 
+        private void Go_Back(object sender, BackRequestedEventArgs e)
+        {
+            systemNavigationManager.BackRequested -= Go_Back;
 
+            if (!isNarrow || (isNarrow && !isEditting)) {
+                System.Diagnostics.Debug.WriteLine("Going back to Main");
+
+                Frame rootFrame = Window.Current.Content as Frame;
+                if (rootFrame == null)
+                    return;
+
+                // Navigate back if possible, and if the event has not 
+                // already been handled .
+                if (rootFrame.CanGoBack && e.Handled == false)
+                {
+                    e.Handled = true;
+                    rootFrame.GoBack();
+                }
+            }
+            else {
+                System.Diagnostics.Debug.WriteLine("Going back to Master");
+
+                e.Handled = true;
+                isEditting = false;
+                adjustColumns();
+                systemNavigationManager.BackRequested += Go_Back;
+
+            }
+
+        }
+
+        
 
         private void MasterListView_ItemClick(object sender, ItemClickEventArgs e)
         {
@@ -55,11 +92,12 @@ namespace Pydio
         {
             base.OnNavigatedTo(e);
 
-                refreshServers();
+            refreshServers();
 
         }
 
-        private void refreshServers() {
+        private void refreshServers()
+        {
             using (var db = new Models.PydioContext())
             {
                 pydioServers = new ObservableCollection<Models.Server>(db.Servers.ToList());
@@ -88,45 +126,29 @@ namespace Pydio
             adjustColumns();
         }
 
-        private void adjustColumns() {
-            System.Diagnostics.Debug.WriteLine("Narrow:" + isNarrow+" editting ?:"+isEditting);
+        private void adjustColumns()
+        {
+            System.Diagnostics.Debug.WriteLine("Narrow:" + isNarrow + " editting ?:" + isEditting);
 
             if (isNarrow && isEditting)
             {
                 DetailColumn.Width = new GridLength(1, GridUnitType.Star);
                 MasterColumn.Width = new GridLength(0);
 
-                // Register for hardware and software back request from the system
-                SystemNavigationManager systemNavigationManager = SystemNavigationManager.GetForCurrentView();
-                systemNavigationManager.BackRequested += DetailPage_BackRequested;
-                systemNavigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
             }
             else if (isNarrow && !isEditting)
             {
                 MasterColumn.Width = new GridLength(1, GridUnitType.Star);
                 DetailColumn.Width = new GridLength(0);
 
-                // Register for hardware and software back request from the system
-                SystemNavigationManager systemNavigationManager = SystemNavigationManager.GetForCurrentView();
-                systemNavigationManager.BackRequested += DetailPage_BackRequested;
-                systemNavigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
             }
             else {
                 DetailColumn.Width = new GridLength(1, GridUnitType.Star);
                 MasterColumn.Width = new GridLength(300, GridUnitType.Pixel);
-
-                // Register for hardware and software back request from the system
-                SystemNavigationManager systemNavigationManager = SystemNavigationManager.GetForCurrentView();
-                systemNavigationManager.BackRequested += DetailPage_BackRequested;
-                systemNavigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
             }
         }
 
-        private void DetailPage_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            isEditting = false;
-            adjustColumns();
-        }
+
 
         private void AddServer_Click(object sender, RoutedEventArgs e)
         {
@@ -146,6 +168,8 @@ namespace Pydio
                 password.Password = _lastSelectedItem.Password;
                 userName.Text = _lastSelectedItem.Username;
                 title.Text = "Edit: " + _lastSelectedItem.Name;
+                delete.Visibility = Visibility.Visible;
+
             }
             else {
                 title.Text = "Add Server";
@@ -153,12 +177,15 @@ namespace Pydio
                 serverAddress.Text = "";
                 password.Password = "";
                 userName.Text = "";
+                delete.Visibility = Visibility.Collapsed;
+
             }
 
-            
+
+
             adjustColumns();
 
-     
+
         }
 
         private void setLabel(object sender, KeyRoutedEventArgs e)
@@ -185,58 +212,79 @@ namespace Pydio
                     _lastSelectedItem = server;
                     db.Servers.Update(_lastSelectedItem);
                     dialogText = "Server saved !";
-
                 }
                 else {
                     db.Servers.Add(server);
                     dialogText = "Server added !";
-
                 }
                 db.SaveChanges();
 
-                if (Frame.CanGoBack)
-                {
-                    //Frame.GoBack();
-                }
+
 
                 refreshServers();
 
-                var dialog = new Windows.UI.Popups.MessageDialog(dialogText);
-                dialog.Commands.Add(new Windows.UI.Popups.UICommand("Ok") { Id = 0 });
+                Notify("Server Saved");
+                //var dialog = new Windows.UI.Popups.MessageDialog(dialogText);
+                //dialog.Commands.Add(new Windows.UI.Popups.UICommand("Ok") { Id = 0 });
 
-                var result = await dialog.ShowAsync();
+                //var result = await dialog.ShowAsync();
                 isEditting = false;
                 adjustColumns();
             }
 
         }
 
-        private async void deleteServer(object sender, RoutedEventArgs e)
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (_lastSelectedItem != null) {
-                var dialog = new Windows.UI.Popups.MessageDialog("Delete server ?");
+            delete.Visibility = Visibility.Collapsed;
 
-                dialog.Commands.Add(new Windows.UI.Popups.UICommand("Yes") { Id = 0 });
-                dialog.Commands.Add(new Windows.UI.Popups.UICommand("No") { Id = 1 });
+            systemNavigationManager.BackRequested += Go_Back;
+            systemNavigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+
+        }
+
+        private async void delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (_lastSelectedItem != null)
+            {
+                using (var db = new Models.PydioContext())
+                {
+                    var dialog = new Windows.UI.Popups.MessageDialog("Delete server ?");
+
+                    dialog.Commands.Add(new Windows.UI.Popups.UICommand("Yes") { Id = 0 });
+                    dialog.Commands.Add(new Windows.UI.Popups.UICommand("No") { Id = 1 });
 
 
-                dialog.DefaultCommandIndex = 0;
-                dialog.CancelCommandIndex = 1;
+                    dialog.DefaultCommandIndex = 0;
+                    dialog.CancelCommandIndex = 1;
 
-                var result = await dialog.ShowAsync();
+                    var result = await dialog.ShowAsync();
 
-                System.Diagnostics.Debug.WriteLine("result:" + result.Id.ToString());
+                    System.Diagnostics.Debug.WriteLine("result:" + result.Id.ToString());
 
 
-                //if (result.Id ) {
-                    var dialog2 = new Windows.UI.Popups.MessageDialog("Server deleted");
-                    dialog.Commands.Add(new Windows.UI.Popups.UICommand("Server deleted") { Id = 0 });
+                    if (result.Id.ToString().Equals("0"))
+                    {
+                        db.Servers.Remove(_lastSelectedItem);
+                        db.SaveChanges();
+                        _lastSelectedItem = null;
 
-                    var result2 = await dialog.ShowAsync();
-                    isEditting = false;
-                    adjustColumns();
-                //}
+                        setServer();
+                        isEditting = false;
+                        adjustColumns();
+                        refreshServers();
+                        Notify("Server Deleted");
+
+                    }
+                }
             }
+        }
+
+        private void Notify(string Message) {
+            Notification.Visibility = Visibility.Visible;
+            NotificationText.Text = Message;
+            NotificationAnimation.Begin();
+
         }
     }
 }
