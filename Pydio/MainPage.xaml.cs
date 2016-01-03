@@ -58,8 +58,8 @@ namespace Pydio
             System.Diagnostics.Debug.WriteLine("Servers:" + server.Name);
 
             Pydio.API API = new Pydio.API(server);
-            API.Ls("yo", "");
 
+            this.Frame.Navigate(typeof(Browser), server.ServerId);
         }
 
         private void IconsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

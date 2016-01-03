@@ -98,6 +98,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Browser.xaml.cs">
+      <DependentUpon>Browser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Document.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -106,7 +110,9 @@
       <DependentUpon>20160102173008_Migration1.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\PydioContextModelSnapshot.cs" />
+    <Compile Include="Models\Node.cs" />
     <Compile Include="Models\PydioContext.cs" />
+    <Compile Include="Models\Repository.cs" />
     <Compile Include="Models\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pydio\API.cs" />
@@ -136,6 +142,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Browser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
