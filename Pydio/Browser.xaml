@@ -6,31 +6,102 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+        xmlns:models="using:Pydio.Models"
+
     >
+    <Page.Resources>
+        <MenuFlyout x:Key="FileContextMenu">
+            <MenuFlyoutItem Text="To Clipboard" Click="Context_To_ClipBoard"/>
+            <MenuFlyoutItem Text="Download"/>
+            <MenuFlyoutItem Text="Rename" Click="Context_Rename"/>
+            <MenuFlyoutItem Text="Share"/>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Delete" Click="Context_Delete"/>
+        </MenuFlyout>
+        
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    </Page.Resources>
+    
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <SplitView DisplayMode="Inline" IsPaneOpen="True" OpenPaneLength="300" Margin="0" CompactPaneLength="0">
+        <SplitView.Pane>
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
 
-        <ListView Grid.Row="1" x:Name="Files" Background="#19000000">
-            <ListView.ItemTemplate>
-                <DataTemplate >
-                    <StackPanel Orientation="Horizontal" Margin="6" HorizontalAlignment="Stretch">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Margin="0,0,12,0" FontSize="25"/>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Label}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <ProgressRing Grid.Column="1" HorizontalAlignment="Left" Margin="246,361,0,0" Grid.Row="1" VerticalAlignment="Top" Height="216" Width="259"/>
-    </Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Vertical" Grid.Row="0">
+                    <TextBlock Name="CurrentFolder" Text="" FontSize="17.333" HorizontalAlignment="Center" FontWeight="Bold" TextTrimming="CharacterEllipsis">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush Color="{ThemeResource SystemAccentColor}" />
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <ProgressBar Name="ProgressBar" IsIndeterminate="True" Opacity="0" />
+                </StackPanel>
+
+
+
+                <ListView Grid.Row="1" x:Name="Files" Background="#19000000" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Node">
+                            <StackPanel Orientation="Horizontal" Padding="6" HorizontalAlignment="Stretch" Tapped="Files_Click" RightTapped="Files_Right_Click">
+                                <!-- <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Margin="0,0,12,0" FontSize="25"/> -->
+
+                                <!--<SymbolIcon Symbol="{x:Bind Icon}"  Margin="0,0,12,0" /> -->
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="{x:Bind Icon}" Margin="0,0,12,0" FontSize="25"/>
+                                <StackPanel>
+                                    <TextBlock Text="{x:Bind Label}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <CommandBar Grid.Row="2">
+                    <AppBarButton Label="Bookmarks" Icon="Bookmarks"/>
+                    <AppBarButton Icon="NewFolder" Label="New Folder"/>
+                    <AppBarButton Icon="Upload" Label="Upload"/>
+                    <AppBarButton Name="CommandClipBoard" Icon="Paste" Label="Clipboard" >
+                        <AppBarButton.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="Empty clipboard" Name="ContextClipboardName"  IsEnabled="False"/>
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="Move Here" Name="ContextClipboardMove" IsEnabled="False" Click="ContextClipboardMove_Click"/>
+                                <MenuFlyoutItem Text="Copy Here" Name="ContextClipboardCopy" IsEnabled="False" Click="ContextClipboardCopy_Click"/>
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+
+                    <CommandBar.SecondaryCommands>
+                        <AppBarButton Label="Bookmark" Icon="OutlineStar"/>
+                        <AppBarButton Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
+                    </CommandBar.SecondaryCommands>
+                </CommandBar>
+
+                <ContentDialog Name="RenameDialog" Visibility="Collapsed">
+                    <TextBox PlaceholderText="newName"/>
+                </ContentDialog>
+
+            </Grid>
+        </SplitView.Pane>
+
+        <SplitView.Content>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+            </Grid>
+        </SplitView.Content>
+
+    </SplitView>
 </Page>

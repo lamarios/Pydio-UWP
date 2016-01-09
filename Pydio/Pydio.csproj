@@ -110,6 +110,7 @@
       <DependentUpon>20160102173008_Migration1.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\PydioContextModelSnapshot.cs" />
+    <Compile Include="Models\File.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\PydioContext.cs" />
     <Compile Include="Models\Repository.cs" />

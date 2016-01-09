@@ -10,21 +10,37 @@ namespace Pydio.Models
     {
         public string Id { get; set; }
         public string Label { get; set; }
-        public string Icon = "&#xE8B7;";
 
-        public string GetPath()
+        string Node.Icon
         {
-            return Id;
+            get
+            {
+                return "\uE8B7";
+            }
         }
 
-        public string GetLabel()
+        public bool Folder
         {
-            return Label;
+            get
+            {
+                return true;
+            }
         }
 
-        public string GetIcon()
+        public string Mime
         {
-            return Icon;
+            get
+            {
+                return "";
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                return Id;
+            }
         }
     }
 }

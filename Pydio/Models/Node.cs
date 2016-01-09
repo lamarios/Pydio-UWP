@@ -8,8 +8,12 @@ namespace Pydio.Models
 {
     interface Node
     {
-        string GetPath();
-        string GetLabel();
-        string GetIcon();
+        string Label { get; }
+        string Id { get; }
+        string Icon { get;  }
+        bool Folder { get; }
+        string Mime { get; }
+        string Path { get; }
+
     }
 }
