@@ -18,15 +18,13 @@
             <MenuFlyoutSeparator />
             <MenuFlyoutItem Text="Delete" Click="Context_Delete"/>
         </MenuFlyout>
-        
-
     </Page.Resources>
     
 
     <SplitView DisplayMode="Inline" IsPaneOpen="True" OpenPaneLength="300" Margin="0" CompactPaneLength="0">
         <SplitView.Pane>
             <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
-
+                
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -38,7 +36,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Vertical" Grid.Row="0">
-                    <TextBlock Name="CurrentFolder" Text="" FontSize="17.333" HorizontalAlignment="Center" FontWeight="Bold" TextTrimming="CharacterEllipsis">
+                    <TextBlock Name="CurrentFolder" Text="" FontSize="17.333" Margin="6" FontWeight="Bold" TextTrimming="CharacterEllipsis">
                         <TextBlock.Foreground>
                             <SolidColorBrush Color="{ThemeResource SystemAccentColor}" />
                         </TextBlock.Foreground>
@@ -66,7 +64,7 @@
 
                 <CommandBar Grid.Row="2">
                     <AppBarButton Label="Bookmarks" Icon="Bookmarks"/>
-                    <AppBarButton Icon="NewFolder" Label="New Folder"/>
+                    <AppBarButton Icon="NewFolder" Label="New Folder" Name="CommandNew" Click="CommandNew_Click"/>
                     <AppBarButton Icon="Upload" Label="Upload"/>
                     <AppBarButton Name="CommandClipBoard" Icon="Paste" Label="Clipboard" >
                         <AppBarButton.Flyout>
@@ -84,10 +82,6 @@
                         <AppBarButton Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
                     </CommandBar.SecondaryCommands>
                 </CommandBar>
-
-                <ContentDialog Name="RenameDialog" Visibility="Collapsed">
-                    <TextBox PlaceholderText="newName"/>
-                </ContentDialog>
 
             </Grid>
         </SplitView.Pane>

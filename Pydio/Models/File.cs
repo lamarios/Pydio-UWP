@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pydio.Models
 {
-    class File : Node
+    public class File : Node
     {
 
         public string Id { get; set; }

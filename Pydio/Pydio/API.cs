@@ -97,12 +97,13 @@ namespace Pydio.Pydio
             string encodedPath = "/";
             foreach (String pathItem in path.Split('/'))
             {
-                if (!pathItem.Equals("")) {
+                if (!pathItem.Equals(""))
+                {
                     encodedPath += WebUtility.UrlEncode(pathItem) + "/";
                 }
             }
-           
-            return encodedPath.Remove(encodedPath.Length -1);
+
+            return encodedPath.Remove(encodedPath.Length - 1);
         }
 
         public async Task<List<Models.File>> Ls(string WorkSpace, string Path)
@@ -142,7 +143,7 @@ namespace Pydio.Pydio
 
             string response = await PostRequest(URL);
 
- 
+
             return ProcessResponseMessage(response);
 
         }
@@ -159,46 +160,64 @@ namespace Pydio.Pydio
 
         }
 
-        public async Task<bool> Rename(string WorkSpace, string File, string NewName)
+        public async Task<bool> Rename(Models.File File, string NewName)
         {
 
-            string URL = Server.Url + "/api/" + WebUtility.UrlEncode(WorkSpace) + "/rename/?file=" + EncodePath(File) + "&filename_new=" + WebUtility.UrlEncode(NewName);
+            string URL = Server.Url + "/api/" + WebUtility.UrlEncode(File.WorkSpace) + "/rename/?file=" + EncodePath(File.Path) + "&filename_new=" + WebUtility.UrlEncode(NewName);
 
             string response = await PostRequest(URL);
 
 
             return ProcessResponseMessage(response);
 
+
         }
 
-        private bool ProcessResponseMessage(string xml) {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xml);
+        public async Task<bool> MkDir(string WorkSpace,string Path, string Name)
+        {
 
-                XmlNodeList children = xmlDoc.GetElementsByTagName("tree").Item(0).ChildNodes;
-                foreach (XmlNode child in children)
+            string URL = Server.Url + "/api/" + WebUtility.UrlEncode(WorkSpace) + "/mkdir/?dir=" + EncodePath(Path) + "&dirname=" + WebUtility.UrlEncode(Name);
+
+            string response = await PostRequest(URL);
+            //http://files.ftpix.com/api/media/mkdir/PydioTests?dirname=new-folder-newnew&dir=/PydioTests
+
+            // return ProcessResponseMessage(response);
+            //Pydio always return an error even if the file has been created properly...
+            return true;
+
+
+        }
+
+        private bool ProcessResponseMessage(string xml)
+        {
+
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            XmlNodeList children = xmlDoc.GetElementsByTagName("tree").Item(0).ChildNodes;
+            foreach (XmlNode child in children)
+            {
+                if (child.Name.Equals("message"))
                 {
-                    if (child.Name.Equals("message"))
+                    foreach (XmlAttribute attribute in child.Attributes)
                     {
-                        foreach (XmlAttribute attribute in child.Attributes)
+                        if (attribute.Name.Equals("type"))
                         {
-                            if (attribute.Name.Equals("type") && attribute.Value.Equals("SUCCESS"))
+                            if (attribute.Value.Equals("SUCCESS"))
                             {
                                 return true;
+                            }
+                            else {
+
+                                throw new Exceptions.PydioException(child.InnerText);
                             }
                         }
                     }
                 }
+            }
 
-                return false;
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine("Error: " + e.Source);
-                return false;
-            }
+            return false;
+
         }
 
         private List<Models.File> parseFolder(string xml, string WorkSpace)

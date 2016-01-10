@@ -137,6 +137,7 @@ namespace Pydio
         private async void BrowseRoot()
         {
             ProgressBar.Opacity = 100;
+            Files.IsEnabled = false;
             List<Models.Node> nodes = await API.ListWorkspaces();
             Nodes = new ObservableCollection<Models.Node>(nodes);
             System.Diagnostics.Debug.WriteLine("Nodes:" + Nodes.Count);
@@ -145,6 +146,8 @@ namespace Pydio
 
             CurrentFolder.Text = "Workspaces";
             ResetClipboard();
+
+            Files.IsEnabled = true;
             ProgressBar.Opacity = 0;
         }
 
@@ -153,6 +156,7 @@ namespace Pydio
             if (!WorkSpace.Equals(""))
             {
                 ProgressBar.Opacity = 100;
+                Files.IsEnabled = false;
                 string path = "";
                 if (History.Count > 0)
                 {
@@ -170,7 +174,7 @@ namespace Pydio
                 Files.ItemsSource = files;
 
                 //Setting the title
-
+                Files.IsEnabled = true;
                 ProgressBar.Opacity = 0;
             }
 
@@ -239,24 +243,27 @@ namespace Pydio
 
             System.Diagnostics.Debug.WriteLine("Moving from:" + ClipboardContent.Path + " to: " + MovePath);
 
-            bool result;
-            if (Move)
+            try
             {
-                result = await API.Move(WorkSpace, ClipboardContent.Path, MovePath);
-            }
-            else {
-                result = await API.Copy(WorkSpace, ClipboardContent.Path, MovePath);
-            }
-            ProgressBar.Opacity = 0;
-
-            if (result)
-            {
+                bool result;
+                if (Move)
+                {
+                    result = await API.Move(WorkSpace, ClipboardContent.Path, MovePath);
+                }
+                else {
+                    result = await API.Copy(WorkSpace, ClipboardContent.Path, MovePath);
+                }
                 Browse();
+
             }
-            else {
-                var dialog = new MessageDialog("An error occured while moving the file.");
+            catch (Exceptions.PydioException e)
+            {
+                var dialog = new MessageDialog(e.Message, "Error");
                 await dialog.ShowAsync();
             }
+
+            ProgressBar.Opacity = 0;
+
 
             ResetClipboard();
         }
@@ -313,8 +320,24 @@ namespace Pydio
             Browse();
         }
 
-        private async void Context_Rename(object sender, RoutedEventArgs e) {
-            await RenameDialog.ShowAsync();
+        private async void Context_Rename(object sender, RoutedEventArgs e)
+        {
+            Models.File File = (Models.File)Files.SelectedItem;
+            if (File != null)
+            {
+                OneInputDialog dialog = new OneInputDialog(File, Server);
+
+                await dialog.ShowAsync();
+                Browse();
+            }
+        }
+
+        private async void CommandNew_Click(object sender, RoutedEventArgs e)
+        {
+            OneInputDialog dialog = new OneInputDialog(WorkSpace, History.Last(), Server);
+
+            await dialog.ShowAsync();
+            Browse();
         }
     }
 }
